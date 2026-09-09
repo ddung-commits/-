@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하이엔드 커스텀 키보드 클리커 & 다이어리 ⌨️✨</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at center, #1f2335 0%, #13141c 100%);
+      --board-color: #24283b;
+      --board-border: #2f3549;
+      --switch-plate: #16161e;
+      --keycap-top: #3b4261;
+      --keycap-bottom: #292e42;
+      --keycap-border: #414868;
+      --keycap-shadow: #1a1b26;
+      --accent-glow: #7aa2f7;
+      --text-main: #c0caf5;
+      --text-sub: #565f89;
+      --lcd-bg: #13141c;
+      --lcd-border: #1a1b26;
+    }
+
+    body.theme-pink {
+      --bg-gradient: radial-gradient(circle at center, #fff0f5 0%, #ffe4ec 100%);
+      --board-color: #ffd1dc;
+      --board-border: #ffb6c1;
+      --switch-plate: #ff9ebb;
+      --keycap-top: #ffffff;
+      --keycap-bottom: #ffeef2;
+      --keycap-border: #ffc0cb;
+      --keycap-shadow: #e0839e;
+      --accent-glow: #ff4081;
+      --text-main: #6d4c55;
+      --text-sub: #a37081;
+      --lcd-bg: #fff5f8;
+      --lcd-border: #ffb6c1;
+    }
+
+    body.theme-retro {
+      --bg-gradient: radial-gradient(circle at center, #ebe4d8 0%, #cfc5b4 100%);
+      --board-color: #ded0bc;
+      --board-border: #c4b59f;
+      --switch-plate: #9a8b75;
+      --keycap-top: #f7f3eb;
+      --keycap-bottom: #e6decb;
+      --keycap-border: #d4c8b2;
+      --keycap-shadow: #857560;
+      --accent-glow: #d9534f;
+      --text-main: #4a3f35;
+      --text-sub: #8c7e6d;
+      --lcd-bg: #2d2b27;
+      --lcd-border: #4a3f35;
+    }
+
+    body.theme-mint {
+      --bg-gradient: radial-gradient(circle at center, #e8f8f5 0%, #c1ede2 100%);
+      --board-color: #a3e4d7;
+      --board-border: #76d7c4;
+      --switch-plate: #48c9b0;
+      --keycap-top: #ffffff;
+      --keycap-bottom: #e0f8f3;
+      --keycap-border: #a2ded0;
+      --keycap-shadow: #16a085;
+      --accent-glow: #00b894;
+      --text-main: #165b4c;
+      --text-sub: #459282;
+      --lcd-bg: #113f35;
+      --lcd-border: #165b4c;
+    }
+
+    body.theme-purple {
+      --bg-gradient: radial-gradient(circle at center, #2e1a47 0%, #150921 100%);
+      --board-color: #3d235f;
+      --board-border: #563385;
+      --switch-plate: #1f0f33;
+      --keycap-top: #693ca3;
+      --keycap-bottom: #4d2680;
+      --keycap-border: #804ec2;
+      --keycap-shadow: #190a2b;
+      --accent-glow: #e056fd;
+      --text-main: #eedbff;
+      --text-sub: #9f7fc9;
+      --lcd-bg: #150824;
+      --lcd-border: #321654;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-gradient);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background 0.3s ease;
+      padding: 24px 16px;
+    }
+
+    /* 팝업 모달 레이어 - 디스플레이 스타일 명확 분리 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none; /* 기본 숨김 */
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+    }
+
+    .modal-card {
+      background: #1f2335;
+      border: 3px solid #7aa2f7;
+      border-radius: 24px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(122, 162, 247, 0.4);
+      position: relative;
+    }
+
+    .modal-card h2 {
+      font-size: 1.35rem;
+      color: #7aa2f7;
+      margin-bottom: 0.6rem;
+    }
+
+    .modal-card p {
+      font-size: 0.88rem;
+      color: #a9b1d6;
+      margin-bottom: 1.2rem;
+      line-height: 1.5;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #7aa2f7;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: #13141c;
+      border: 2px solid #2f3549;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .modal-input:focus { border-color: #7aa2f7; }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 0.8rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 0.8rem;
+    }
+
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: #7aa2f7;
+      color: #13141c;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #3d59a1;
+      transition: transform 0.08s, box-shadow 0.08s;
+      touch-action: manipulation;
+    }
+
+    .action-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #3d59a1;
+    }
+
+    .action-btn.secondary {
+      background: #24283b;
+      color: #c0caf5;
+      border: 1px solid #414868;
+      box-shadow: 0 5px 0 #16161e;
+    }
+
+    .action-btn.secondary:active {
+      box-shadow: 0 2px 0 #16161e;
+    }
+
+    /* 메인 레이아웃 */
+    .app-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      align-items: flex-start;
+      justify-content: center;
+      max-width: 950px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .keyboard-case {
+      background: var(--board-color);
+      padding: 1.8rem 1.6rem;
+      border-radius: 36px;
+      border: 4px solid var(--board-border);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.2),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      flex: 1 1 400px;
+      max-width: 450px;
+      position: relative;
+      transition: all 0.3s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 0.6rem;
+    }
+
+    .nav-btn-top {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--board-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      padding: 0.35rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-btn-top:hover {
+      border-color: var(--accent-glow);
+      color: var(--accent-glow);
+    }
+
+    .stress-banner {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 0.5rem 0.8rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .stress-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent-glow);
+      white-space: nowrap;
+    }
+
+    .stress-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .lcd-display {
+      background: var(--lcd-bg);
+      border: 2px solid var(--lcd-border);
+      border-radius: 16px;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .counter-label {
+      font-size: 0.68rem;
+      color: var(--text-sub);
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    .counter-row {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 0.2rem;
+    }
+
+    .counter-val {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--accent-glow);
+      font-family: 'Courier New', Courier, monospace;
+      line-height: 1;
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .counter-target {
+      font-size: 1.2rem;
+      color: var(--text-sub);
+      font-weight: 700;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.6rem;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--accent-glow);
+      box-shadow: 0 0 8px var(--accent-glow);
+      transition: width 0.1s ease;
+    }
+
+    .key-socket {
+      background: var(--switch-plate);
+      padding: 1.2rem;
+      border-radius: 28px;
+      display: inline-flex;
+      position: relative;
+      box-shadow: inset 0 6px 12px rgba(0, 0, 0, 0.5);
+      margin-bottom: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .keycap-btn {
+      width: 110px;
+      height: 110px;
+      font-size: 3.5rem;
+      background: linear-gradient(180deg, var(--keycap-top) 0%, var(--keycap-bottom) 100%);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 
+        0 0 0 2px var(--keycap-border),
+        0 12px 0 0 var(--keycap-shadow),
+        0 18px 25px rgba(0, 0, 0, 0.4);
+      transform: translateY(0);
+      transition: transform 0.05s ease, box-shadow 0.05s ease;
+      touch-action: manipulation;
+    }
+
+    .keycap-btn::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 10px;
+      right: 10px;
+      height: 38%;
+      border-radius: 14px 14px 20px 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+    }
+
+    .keycap-icon {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: transform 0.05s;
+    }
+
+    .keycap-btn:active, .keycap-btn.pressed {
+      transform: translateY(10px);
+      box-shadow: 
+        0 0 0 2px var(--accent-glow),
+        0 2px 0 0 var(--keycap-shadow),
+        0 4px 15px var(--accent-glow),
+        inset 0 0 20px var(--accent-glow);
+    }
+
+    .keycap-btn.pressed .keycap-icon {
+      transform: scale(0.92);
+    }
+
+    .custom-container {
+      margin-top: 0.8rem;
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.8rem;
+      border-radius: 20px;
+    }
+
+    .custom-section {
+      margin-bottom: 0.7rem;
+    }
+
+    .custom-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--text-sub);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: left;
+    }
+
+    .sound-picker-box {
+      display: flex;
+      gap: 6px;
+      justify-content: space-between;
+    }
+
+    .sound-btn {
+      flex: 1;
+      padding: 0.4rem 0.2rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--switch-plate);
+      color: var(--text-sub);
+      border: 1px solid var(--keycap-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sound-btn.active {
+      background: var(--accent-glow);
+      color: #13141c;
+      border-color: var(--accent-glow);
+      font-weight: 800;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .color-picker-box {
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .color-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s;
+    }
+
+    .color-btn.active {
+      transform: scale(1.25);
+      box-shadow: 0 0 0 2px var(--accent-glow), 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-theme-dark { background: #24283b; }
+    .btn-theme-pink { background: #ffd1dc; }
+    .btn-theme-retro { background: #ded0bc; }
+    .btn-theme-mint { background: #a3e4d7; }
+    .btn-theme-purple { background: #563385; }
+
+    .picker-scroll-box {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      max-height: 90px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .picker-key {
+      font-size: 1.15rem;
+      height: 36px;
+      background: var(--board-color);
+      border: 1px solid var(--keycap-border);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 var(--keycap-shadow);
+      transition: transform 0.1s, border-color 0.2s;
+    }
+
+    .picker-key.active {
+      border-color: var(--accent-glow);
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--keycap-shadow), 0 0 8px var(--accent-glow);
+    }
+
+    .hint {
+      margin-top: 0.8rem;
+      font-size: 0.7rem;
+      color: var(--text-sub);
+    }
+
+    .click-feedback {
+      position: absolute;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent-glow);
+      pointer-events: none;
+      animation: popUp 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    @keyframes popUp {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+      50% { transform: translate(-50%, -40px) scale(1.3); }
+      100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+    }
+
+    /* 캘린더 */
+    .calendar-card {
+      background: var(--board-color);
+      border: 4px solid var(--board-border);
+      border-radius: 36px;
+      padding: 1.6rem;
+      flex: 1 1 340px;
+      max-width: 420px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .month-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .nav-btn {
+      background: var(--lcd-bg);
+      border: 1px solid var(--board-border);
+      color: var(--text-main);
+      padding: 0.3rem 0.7rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .weekdays-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 0.5rem;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--switch-plate);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+    }
+
+    .day-cell:hover {
+      border: 1px solid var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .day-cell.empty {
+      background: transparent;
+      cursor: default;
+    }
+    .day-cell.empty:hover {
+      border: none;
+      transform: none;
+    }
+
+    .day-cell.today {
+      border: 1px solid var(--accent-glow);
+    }
+
+    .day-badge {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      box-shadow: 0 0 6px var(--accent-glow);
+      margin-top: 2px;
+    }
+
+    .record-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-bottom: 1.2rem;
+      text-align: left;
+      padding-right: 4px;
+    }
+
+    .record-item {
+      background: #13141c;
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid #7aa2f7;
+    }
+
+    .record-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #c0caf5;
+      margin-bottom: 0.2rem;
+    }
+
+    .record-meta {
+      font-size: 0.75rem;
+      color: #7aa2f7;
+    }
+
+    .record-empty {
+      color: #565f89;
+      font-size: 0.85rem;
+      padding: 1.5rem 0;
+    }
+
+    .summary-badge-box {
+      background: #13141c;
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #2f3549;
+    }
+
+    .summary-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #7aa2f7;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      display: none;
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="modal-overlay" id="introModal" style="display: flex;">
+    <div class="modal-card">
+      <h2 style="font-size: 1.45rem; line-height: 1.3;">오늘 하루는<br>괜찮으셨나요? 🌿</h2>
+      <p style="margin: 0.8rem 0 1.4rem 0;">
+        수많은 일들 속에서 애쓰느라 고생 많으셨어요.<br>
+        쌓인 마음의 피로를 지금 여기서 털어내 보세요.
+      </p>
+
+      <div class="btn-stack">
+        <button type="button" class="action-btn" onclick="openModal('setupModal')">스트레스 퇴치하기 💥</button>
+        <button type="button" class="action-btn secondary" onclick="openMonthSummary()">이번 달 스트레스 현황 보기 📅</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="setupModal">
+    <div class="modal-card">
+      <h2>🔥 스트레스 퇴치 준비</h2>
+      <p>오늘 나를 지치게 한 일을 적고 두드려 날려버리세요!</p>
+      
+      <div class="input-group">
+        <label for="stressInput">오늘 나를 열받게 한 일</label>
+        <input type="text" id="stressInput" class="modal-input" placeholder="예: 무리한 일정, 사소한 오해..." maxlength="25">
+      </div>
+
+      <div class="input-group">
+        <label for="targetInput">목표 타건 횟수</label>
+        <input type="number" id="targetInput" class="modal-input" placeholder="50" value="50" min="5" max="999">
+      </div>
+
+      <button type="button" class="action-btn" onclick="startStressGame()">스트레스 부수러 가기 💥</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="completeModal">
+    <div class="modal-card">
+      <h2 style="font-size: 1.6rem;">🎉 스트레스 퇴치 완료! 🎉</h2>
+      <p id="resultText" style="font-size: 1rem; color: #fff; font-weight: bold; margin: 0.8rem 0;"></p>
+      <p style="color: #7aa2f7; font-size: 0.85rem; line-height: 1.4; margin-bottom: 1.2rem;">
+        기록이 달력에 안전하게 저장되었습니다! ✨
+      </p>
+      
+      <div class="btn-group">
+        <button type="button" class="action-btn secondary" onclick="closeAllModals()">확인</button>
+        <button type="button" class="action-btn" onclick="openModal('setupModal')">새 퇴치 🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="monthSummaryModal">
+    <div class="modal-card">
+      <h2>📊 이번 달 스트레스 현황</h2>
+      <p id="summaryMonthLabel">2026년 9월의 퇴치 기록</p>
+
+      <div class="summary-badge-box">
+        <div style="font-size: 0.8rem; color: #8c7e6d; margin-bottom: 0.3rem;">총 퇴치한 스트레스 횟수</div>
+        <div class="summary-num" id="monthTotalCount">0회</div>
+      </div>
+
+      <div class="record-list" id="monthRecordList"></div>
+
+      <div class="btn-group">
+        <button type="button" class="action-btn secondary" onclick="closeAllModals()">바탕 보기</button>
+        <button type="button" class="action-btn" onclick="openModal('setupModal')">스트레스 퇴치하기 💥</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="dateDetailModal">
+    <div class="modal-card">
+      <h2 id="selectedDateTitle">2026.09.04</h2>
+      <p>그날 퇴치한 스트레스 히스토리</p>
+      <div class="record-list" id="dateRecordList"></div>
+      <button type="button" class="action-btn" onclick="closeAllModals()">닫기</button>
+    </div>
+  </div>
+
+  <div class="app-layout">
+    <div class="keyboard-case">
+      <div class="top-actions">
+        <button type="button" class="nav-btn-top" onclick="openModal('introModal')">🌿 오늘의 안부</button>
+        <button type="button" class="nav-btn-top" onclick="openMonthSummary()">📊 이번달 현황</button>
+      </div>
+
+      <div class="stress-banner">
+        <span class="stress-tag">TARGET 🎯</span>
+        <span class="stress-text" id="displayStress">스트레스 날려버리기</span>
+      </div>
+      
+      <div class="lcd-display">
+        <div class="counter-label">STRESS DESTROYED</div>
+        <div class="counter-row">
+          <span class="counter-val" id="score">0</span>
+          <span class="counter-target" id="targetDisplay">/ 50</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="key-socket" id="socketArea">
+        <button class="keycap-btn" id="keyBtn" type="button">
+          <span class="keycap-icon" id="keyIcon">💥</span>
+        </button>
+      </div>
+
+      <div class="custom-container">
+        <div class="custom-section">
+          <div class="section-title">Switch Sound</div>
+          <div class="sound-picker-box">
+            <button type="button" class="sound-btn active" data-sound="blue">청축(클릭)</button>
+            <button type="button" class="sound-btn" data-sound="brown">갈축(도각)</button>
+            <button type="button" class="sound-btn" data-sound="pop">버블팝</button>
+            <button type="button" class="sound-btn" data-sound="retro">8비트</button>
+          </div>
+        </div>
+
+        <div class="custom-section">
+          <div class="section-title">Case Theme</div>
+          <div class="color-picker-box">
+            <div class="color-btn btn-theme-dark active" data-theme=""></div>
+            <div class="color-btn btn-theme-pink" data-theme="theme-pink"></div>
+            <div class="color-btn btn-theme-retro" data-theme="theme-retro"></div>
+            <div class="color-btn btn-theme-mint" data-theme="theme-mint"></div>
+            <div class="color-btn btn-theme-purple" data-theme="theme-purple"></div>
+          </div>
+        </div>
+
+        <div class="custom-section">
+          <div class="section-title">Keycap Icon (18종)</div>
+          <div class="picker-scroll-box" id="picker">
+            <div class="picker-key active" data-char="💥">💥</div>
+            <div class="picker-key" data-char="🔨">🔨</div>
+            <div class="picker-key" data-char="🐱">🐱</div>
+            <div class="picker-key" data-char="🐰">🐰</div>
+            <div class="picker-key" data-char="🐻">🐻</div>
+            <div class="picker-key" data-char="🐥">🐥</div>
+            <div class="picker-key" data-char="👾">👾</div>
+            <div class="picker-key" data-char="⚡">⚡</div>
+            <div class="picker-key" data-char="🔥">🔥</div>
+            <div class="picker-key" data-char="💖">💖</div>
+            <div class="picker-key" data-char="⭐">⭐</div>
+            <div class="picker-key" data-char="🍓">🍓</div>
+            <div class="picker-key" data-char="🍒">🍒</div>
+            <div class="picker-key" data-char="🍕">🍕</div>
+            <div class="picker-key" data-char="🚀">🚀</div>
+            <div class="picker-key" data-char="🪐">🪐</div>
+            <div class="picker-key" data-char="🥊">🥊</div>
+            <div class="picker-key" data-char="👻">👻</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">[스페이스바 / 엔터키]를 연타해 박살내세요!</div>
+    </div>
+
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <button type="button" class="nav-btn" id="prevMonthBtn">&lt;</button>
+        <div class="month-title" id="monthYearTitle">2026. 09</div>
+        <button type="button" class="nav-btn" id="nextMonthBtn">&gt;</button>
+      </div>
+
+      <div class="weekdays-grid">
+        <span style="color:#ff6b6b;">일</span>
+        <span>월</span>
+        <span>화</span>
+        <span>수</span>
+        <span>목</span>
+        <span>금</span>
+        <span style="color:#7aa2f7;">토</span>
+      </div>
+
+      <div class="days-grid" id="daysGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // 1. 모달 표시/숨김 전역 제어 (인라인 직접 호출)
+    // ============================================
+    function closeAllModals() {
+      const overlays = document.querySelectorAll('.modal-overlay');
+      overlays.forEach(modal => {
+        modal.style.display = 'none';
+      });
+    }
+
+    function openModal(modalId) {
+      closeAllModals();
+      const target = document.getElementById(modalId);
+      if (target) {
+        target.style.display = 'flex';
+      }
+    }
+
+    let count = 0;
+    let targetCount = 50;
+    let stressReason = "오늘의 모든 스트레스";
+    let isCompleted = false;
+    let currentDate = new Date();
+    let selectedSound = "blue";
+
+    const stressInput = document.getElementById('stressInput');
+    const targetInput = document.getElementById('targetInput');
+    const displayStress = document.getElementById('displayStress');
+    const targetDisplay = document.getElementById('targetDisplay');
+    const scoreElement = document.getElementById('score');
+    const progressBar = document.getElementById('progressBar');
+    const resultText = document.getElementById('resultText');
+
+    const keyBtn = document.getElementById('keyBtn');
+    const keyIcon = document.getElementById('keyIcon');
+    const socketArea = document.getElementById('socketArea');
+    const pickerKeys = document.querySelectorAll('.picker-key');
+    const colorBtns = document.querySelectorAll('.color-btn');
+    const soundBtns = document.querySelectorAll('.sound-btn');
+
+    const monthYearTitle = document.getElementById('monthYearTitle');
+    const daysGrid = document.getElementById('daysGrid');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
+    const selectedDateTitle = document.getElementById('selectedDateTitle');
+    const dateRecordList = document.getElementById('dateRecordList');
+
+    const summaryMonthLabel = document.getElementById('summaryMonthLabel');
+    const monthTotalCount = document.getElementById('monthTotalCount');
+    const monthRecordList = document.getElementById('monthRecordList');
+
+    // ============================================
+    // 2. 사운드 시스템 (Web Audio)
+    // ============================================
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      try {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
+    }
+
+    function playCustomSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      if (selectedSound === "blue") {
+        const clickOsc = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(3200 + Math.random() * 400, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(700, now + 0.015);
+        clickGain.gain.setValueAtTime(0.4, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+        clickOsc.connect(clickGain);
+        clickGain.connect(audioCtx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.02);
+
+        const thockOsc = audioCtx.createOscillator();
+        const thockGain = audioCtx.createGain();
+        thockOsc.type = 'sine';
+        thockOsc.frequency.setValueAtTime(220 + Math.random() * 30, now);
+        thockOsc.frequency.exponentialRampToValueAtTime(70, now + 0.04);
+        thockGain.gain.setValueAtTime(0.5, now);
+        thockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        thockOsc.connect(thockGain);
+        thockGain.connect(audioCtx.destination);
+        thockOsc.start(now);
+        thockOsc.stop(now + 0.05);
+
+      } else if (selectedSound === "brown") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160 + Math.random() * 20, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.06);
+        gain.gain.setValueAtTime(0.7, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+
+      } else if (selectedSound === "pop") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        const startFreq = 480 + Math.random() * 80;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(startFreq * 2.2, now + 0.06);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+
+      } else if (selectedSound === "retro") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(600 + Math.random() * 100, now);
+        osc.frequency.setValueAtTime(900 + Math.random() * 100, now + 0.025);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+    }
+
+    function playVictoryJingle() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const start = audioCtx.currentTime + idx * 0.12;
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.3, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.35);
+      });
+    }
+
+    // ============================================
+    // 3. 폭죽 효과
+    // ============================================
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function fireConfetti() {
+      canvas.style.display = 'block';
+      particles = [];
+      const colors = ['#ff4081', '#7aa2f7', '#00b894', '#ffd1dc', '#feca57', '#ff6b6b'];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.7) * 18,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+      renderConfetti();
+    }
+
+    function renderConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.4;
+        p.rotation += p.rotationSpeed;
+        p.opacity -= 0.012;
+
+        if (p.opacity > 0) {
+          alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(0, p.opacity);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        }
+      });
+
+      if (alive) {
+        requestAnimationFrame(renderConfetti);
+      } else {
+        canvas.style.display = 'none';
+      }
+    }
+
+    // ============================================
+    // 4. 로컬 스토리지 & 캘린더
+    // ============================================
+    function getStoredLogs() {
+      try {
+        return JSON.parse(localStorage.getItem('stress_clicker_logs') || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveStressLog(reason, clicks) {
+      const logs = getStoredLogs();
+      const today = new Date();
+      const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      if (!logs[dateKey]) logs[dateKey] = [];
+
+      const timeStr = today.toTimeString().split(' ')[0].substring(0, 5);
+      logs[dateKey].push({
+        time: timeStr,
+        reason: reason,
+        clicks: clicks
+      });
+
+      localStorage.setItem('stress_clicker_logs', JSON.stringify(logs));
+      renderCalendar();
+    }
+
+    function openMonthSummary() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      const prefix = `${year}-${String(month).padStart(2, '0')}`;
+
+      summaryMonthLabel.innerText = `${year}년 ${month}월의 퇴치 기록`;
+      monthRecordList.innerHTML = '';
+
+      const logs = getStoredLogs();
+      let totalClicks = 0;
+      let itemsFound = [];
+
+      Object.keys(logs).forEach(dateStr => {
+        if (dateStr.startsWith(prefix)) {
+          logs[dateStr].forEach(entry => {
+            totalClicks += entry.clicks;
+            itemsFound.push({ date: dateStr, ...entry });
+          });
+        }
+      });
+
+      monthTotalCount.innerText = `${totalClicks.toLocaleString()}회`;
+
+      if (itemsFound.length === 0) {
+        monthRecordList.innerHTML = '<div class="record-empty">이번 달에 기록된 스트레스 퇴치 내역이 없습니다. 평온한 달이었길 바라요! 🌿</div>';
+      } else {
+        itemsFound.reverse().forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'record-item';
+          row.innerHTML = `
+            <div class="record-title">💥 ${item.reason}</div>
+            <div class="record-meta">📅 ${item.date} (${item.time}) | <strong>${item.clicks}회</strong> 퇴치</div>
+          `;
+          monthRecordList.appendChild(row);
+        });
+      }
+
+      openModal('monthSummaryModal');
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      monthYearTitle.innerText = `${year}. ${String(month + 1).padStart(2, '0')}`;
+      daysGrid.innerHTML = '';
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const logs = getStoredLogs();
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'day-cell empty';
+        daysGrid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayCell = document.createElement('div');
+        dayCell.className = 'day-cell';
+        dayCell.innerText = day;
+
+        if (dateKey === todayKey) dayCell.classList.add('today');
+
+        if (logs[dateKey] && logs[dateKey].length > 0) {
+          const badge = document.createElement('div');
+          badge.className = 'day-badge';
+          dayCell.appendChild(badge);
+        }
+
+        dayCell.onclick = function() {
+          openDateDetail(dateKey, logs[dateKey]);
+        };
+
+        daysGrid.appendChild(dayCell);
+      }
+    }
+
+    function openDateDetail(dateStr, records) {
+      selectedDateTitle.innerText = `📅 ${dateStr}`;
+      dateRecordList.innerHTML = '';
+
+      if (!records || records.length === 0) {
+        dateRecordList.innerHTML = '<div class="record-empty">이 날 퇴치한 스트레스 기록이 없습니다.</div>';
+      } else {
+        records.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'record-item';
+          row.innerHTML = `
+            <div class="record-title">💥 ${item.reason}</div>
+            <div class="record-meta">🕒 ${item.time} | 타건 횟수: <strong>${item.clicks}회</strong> 퇴치 완료!</div>
+          `;
+          dateRecordList.appendChild(row);
+        });
+      }
+
+      openModal('dateDetailModal');
+    }
+
+    prevMonthBtn.onclick = function() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    };
+
+    nextMonthBtn.onclick = function() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    };
+
+    // ============================================
+    // 5. 게임 플레이 및 키 타건
+    // ============================================
+    function startStressGame() {
+      initAudio();
+
+      stressReason = stressInput.value.trim() || "오늘의 모든 스트레스";
+      targetCount = parseInt(targetInput.value, 10) || 50;
+
+      displayStress.innerText = `"${stressReason}"`;
+      targetDisplay.innerText = `/ ${targetCount}`;
+      
+      count = 0;
+      scoreElement.innerText = 0;
+      progressBar.style.width = '0%';
+      isCompleted = false;
+
+      closeAllModals();
+    }
+
+    // 인풋 엔터키 입력 지원
+    stressInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') startStressGame();
+    });
+    targetInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') startStressGame();
+    });
+
+    function triggerFeedback() {
+      const text = document.createElement('div');
+      text.className = 'click-feedback';
+      text.innerText = '+1';
+      text.style.left = '50%';
+      text.style.top = '15%';
+      socketArea.appendChild(text);
+      setTimeout(() => text.remove(), 600);
+    }
+
+    function activateKey() {
+      if (isCompleted) return;
+
+      count++;
+      scoreElement.innerText = count;
+
+      const percent = Math.min((count / targetCount) * 100, 100);
+      progressBar.style.width = `${percent}%`;
+
+      playCustomSound();
+      triggerFeedback();
+
+      keyBtn.classList.add('pressed');
+      setTimeout(() => keyBtn.classList.remove('pressed'), 70);
+
+      if (count >= targetCount) {
+        isCompleted = true;
+        saveStressLog(stressReason, count);
+
+        setTimeout(() => {
+          playVictoryJingle();
+          fireConfetti();
+          resultText.innerText = `💥 [${stressReason}] 완벽 퇴치!`;
+          openModal('completeModal');
+        }, 200);
+      }
+    }
+
+    keyBtn.onclick = activateKey;
+
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      const anyModalOpen = Array.from(document.querySelectorAll('.modal-overlay')).some(m => m.style.display === 'flex');
+      if (!anyModalOpen && (e.code === 'Space' || e.code === 'Enter')) {
+        e.preventDefault();
+        activateKey();
+      }
+    });
+
+    // ============================================
+    // 6. 커스터마이징 옵션들
+    // ============================================
+    soundBtns.forEach(btn => {
+      btn.onclick = function() {
+        soundBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedSound = btn.getAttribute('data-sound');
+        playCustomSound();
+      };
+    });
+
+    colorBtns.forEach(btn => {
+      btn.onclick = function() {
+        colorBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.body.className = '';
+        const theme = btn.getAttribute('data-theme');
+        if (theme) document.body.classList.add(theme);
+        playCustomSound();
+      };
+    });
+
+    pickerKeys.forEach(key => {
+      key.onclick = function() {
+        pickerKeys.forEach(k => k.classList.remove('active'));
+        key.classList.add('active');
+        keyIcon.innerText = key.getAttribute('data-char');
+        playCustomSound();
+      };
+    });
+
+    renderCalendar();
+  </script>
+</body>
+</html>
